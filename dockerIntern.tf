@@ -117,13 +117,19 @@ resource "aws_route53_record" "dockerhost_workers_intern" {
   zone_id         = "${data.aws_route53_zone.dca_poc_domain.zone_id}"
 }
 
-# resource "aws_route53_record" "internal_internerDockerhost" {
-#   allow_overwrite = "true"
-#   depends_on      = ["aws_instance.internerDockerhost"]
-#   name            = "internerDockerhost"
-#   ttl             = "60"
-#   type            = "A"
-#   records         = ["${aws_instance.internerDockerhost.private_ip}"]
-#   zone_id         = "${data.aws_route53_zone.dca_internal_domain.zone_id}"
-# }
+data "template_file" "startSshScript" {
+  template = "${file("tpl/start_ssh.tpl")}"
 
+  vars {
+    random_port      = "${random_integer.randomScriptPort.result}"
+    userid           = "${lower(random_string.projectId.result)}"
+    host_fqdn        = "${aws_route53_record.dockerhost_masterintern.fqdn}"
+    bastionhost_fqdn = "${element(data.terraform_remote_state.baseInfra.bastion_dns,0)}"
+    workspace        = "${terraform.workspace}"
+  }
+}
+
+resource "local_file" "connectSshScript" {
+  content  = "${data.template_file.startSshScript.rendered}"
+  filename = "${path.module}/start_ssh_connection.ps1"
+}
