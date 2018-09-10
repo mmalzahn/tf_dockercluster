@@ -27,15 +27,41 @@ resource "aws_security_group" "SG_DockerSocket_IN_from_Bastionhost" {
                )
                )}"
 }
+
 resource "aws_security_group" "SG_DockerSwarmCom_from_tiersubnets" {
   name        = "${local.resource_prefix}SG_DockerSwarmCom_from_tiersubnets"
   description = "Allow Docker Swarm Communication inbound traffic from Subnets for Project ${lookup(local.common_tags,"tf_project_name")}"
   vpc_id      = "${data.terraform_remote_state.baseInfra.vpc_id}"
 
   ingress {
-    from_port       = 2377
-    to_port         = 2377
-    protocol        = "tcp"
+    description ="Docker Swarm cluster management"
+    from_port   = 2377
+    to_port     = 2377
+    protocol    = "tcp"
+    cidr_blocks = ["${data.terraform_remote_state.baseInfra.subnet_cidrblocks_backend}"]
+  }
+
+  ingress {
+    description ="Docker Swarm communication between the nodes (TCP)"
+    from_port   = 7946
+    to_port     = 7946
+    protocol    = "tcp"
+    cidr_blocks = ["${data.terraform_remote_state.baseInfra.subnet_cidrblocks_backend}"]
+  }
+
+  ingress {
+    description = "Docker Swarm communication between the nodes (UDP)"
+    from_port   = 7946
+    to_port     = 7946
+    protocol    = "udp"
+    cidr_blocks = ["${data.terraform_remote_state.baseInfra.subnet_cidrblocks_backend}"]
+  }
+
+  ingress {
+    description = "Docker Overlaynetworktraffic"
+    from_port   = 4789
+    to_port     = 4789
+    protocol    = "udp"
     cidr_blocks = ["${data.terraform_remote_state.baseInfra.subnet_cidrblocks_backend}"]
   }
 
