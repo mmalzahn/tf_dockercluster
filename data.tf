@@ -62,3 +62,7 @@ resource "random_string" "projectId" {
   upper   = false
   number  = false
 }
+resource "random_integer" "randomScriptPort" {
+  min   = 12000
+  max   = 14000
+}

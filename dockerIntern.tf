@@ -25,7 +25,7 @@ resource "aws_instance" "internerDockerhostMaster" {
   ]
 
   associate_public_ip_address = "false"
-  key_name                    = "${var.aws_key_name}"
+  key_name                    = "${data.template_file.awskeyname.rendered}"
   user_data                   = "${data.template_file.installscript_master_intern.rendered}"
 
   lifecycle {
@@ -80,7 +80,7 @@ resource "aws_instance" "internerDockerhostWorker" {
   ]
 
   associate_public_ip_address = "false"
-  key_name                    = "${var.aws_key_name}"
+  key_name                    = "${data.template_file.awskeyname.rendered}"
   user_data                   = "${data.template_file.installscript_worker_intern.rendered}"
 
   lifecycle {
