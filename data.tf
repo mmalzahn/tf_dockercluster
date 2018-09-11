@@ -11,7 +11,7 @@ locals {
     tf_configId     = "${local.projectId}"
   }
   projectId ="${lower(random_string.projectId.result)}"
-  resource_prefix = "tf-${random_id.randomPart.b64_url}-${var.project_name}-${terraform.workspace}-"
+  resource_prefix = "tf-${random_string.projectId.result}-${terraform.workspace}-"
 }
 data "terraform_remote_state" "baseInfra" {
   backend = "s3"
@@ -46,14 +46,6 @@ data "aws_iam_policy_document" "instance-assume-role-policy" {
 
   owners      = ["681337066511"]
   most_recent = true
-}
-
-resource "random_id" "configId" {
-  byte_length = 16
-}
-
-resource "random_id" "randomPart" {
-  byte_length = 4
 }
 
 resource "random_string" "projectId" {
