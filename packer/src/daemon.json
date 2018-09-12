@@ -1,0 +1,1 @@
+{"max-concurrent-downloads": 8,"max-concurrent-uploads": 5,"debug": true,"host": ["tcp://0.0.0.0:2375"],"experimental": true,"tls": false}
