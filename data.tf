@@ -14,7 +14,6 @@ locals {
   projectId       = "${lower(random_string.projectId.result)}"
   resource_prefix = "tf-${random_string.projectId.result}-${terraform.workspace}-"
 }
-
 data "terraform_remote_state" "baseInfra" {
   backend = "s3"
 
@@ -24,11 +23,9 @@ data "terraform_remote_state" "baseInfra" {
     region = "${var.remote_state_bucket_region}"
   }
 }
-
 data "aws_route53_zone" "dca_poc_domain" {
   name = "${data.terraform_remote_state.baseInfra.dns_name}"
 }
-
 data "aws_iam_policy_document" "instance-assume-role-policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -39,7 +36,6 @@ data "aws_iam_policy_document" "instance-assume-role-policy" {
     }
   }
 }
-
 data "aws_ami" "dockerhostPackerAmi" {
   filter {
     name   = "tag:tf_packerid"
@@ -49,34 +45,28 @@ data "aws_ami" "dockerhostPackerAmi" {
   owners      = ["681337066511"]
   most_recent = true
 }
-
 resource "random_string" "projectId" {
   length  = 10
   special = false
   upper   = false
   number  = false
 }
-
 resource "random_integer" "randomSshPortIntern" {
   min = 13000
   max = 14000
 }
-
 resource "random_integer" "randomDockerPortIntern" {
   min = 15001
   max = 16000
 }
-
 resource "random_integer" "randomSshPortExtern" {
   min = 12000
   max = 13000
 }
-
 resource "random_integer" "randomDockerPortExtern" {
   min = 14001
   max = 15000
 }
-
 data "template_file" "connectDockerSocketIntern" {
   template = "${file("tpl/connectDocker.tpl")}"
 
@@ -88,7 +78,6 @@ data "template_file" "connectDockerSocketIntern" {
     workspace        = "${terraform.workspace}"
   }
 }
-
 data "template_file" "connectDockerSocketExtern" {
   template = "${file("tpl/connectDocker.tpl")}"
 
@@ -100,7 +89,6 @@ data "template_file" "connectDockerSocketExtern" {
     workspace        = "${terraform.workspace}"
   }
 }
-
 data "template_file" "startSshDockerInternScript" {
   template = "${file("tpl/start_ssh.tpl")}"
 
@@ -112,7 +100,6 @@ data "template_file" "startSshDockerInternScript" {
     workspace        = "${terraform.workspace}"
   }
 }
-
 data "template_file" "startSshDockerExternScript" {
   template = "${file("tpl/start_ssh.tpl")}"
 
@@ -145,4 +132,28 @@ data "template_file" "installscript_master_extern" {
     user_id        = "${lower(random_string.projectId.result)}"
     public_key     = "${trimspace(tls_private_key.private_key_dockercluster.public_key_openssh)}"
   }
+}
+data "template_file" "installscript_worker_extern" {
+  template = "${file("tpl/installdockerworker.tpl")}"
+
+  vars {
+    file_system_id = "${element(data.terraform_remote_state.baseInfra.efs_filesystem_id,0)}"
+    efs_directory  = "/efs"
+    project_id     = "${local.projectId}-extern"
+    master_ip      = "${aws_instance.externerDockerhostMaster.private_ip}"
+  }
+
+  depends_on = ["aws_instance.externerDockerhostMaster"]
+}
+data "template_file" "installscript_worker_intern" {
+  template = "${file("tpl/installdockerworker.tpl")}"
+
+  vars {
+    file_system_id = "${element(data.terraform_remote_state.baseInfra.efs_filesystem_id,0)}"
+    efs_directory  = "/efs"
+    project_id     = "${local.projectId}-intern"
+    master_ip      = "${aws_instance.internerDockerhostMaster.private_ip}"
+  }
+
+  depends_on = ["aws_instance.internerDockerhostMaster"]
 }
