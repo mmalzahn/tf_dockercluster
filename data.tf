@@ -10,9 +10,11 @@ locals {
     tf_responsible  = "${var.tag_responsibel}"
     tf_configId     = "${local.projectId}"
   }
-  projectId ="${lower(random_string.projectId.result)}"
+
+  projectId       = "${lower(random_string.projectId.result)}"
   resource_prefix = "tf-${random_string.projectId.result}-${terraform.workspace}-"
 }
+
 data "terraform_remote_state" "baseInfra" {
   backend = "s3"
 
@@ -38,7 +40,7 @@ data "aws_iam_policy_document" "instance-assume-role-policy" {
   }
 }
 
- data "aws_ami" "dockerhostPackerAmi" {
+data "aws_ami" "dockerhostPackerAmi" {
   filter {
     name   = "tag:tf_packerid"
     values = ["docker001"]
@@ -54,13 +56,15 @@ resource "random_string" "projectId" {
   upper   = false
   number  = false
 }
+
 resource "random_integer" "randomScriptPort" {
-  min   = 12000
-  max   = 14000
+  min = 12000
+  max = 14000
 }
+
 resource "random_integer" "randomDockerPort" {
-  min   = 14001
-  max   = 16000
+  min = 14001
+  max = 16000
 }
 
 data "template_file" "connectDockerSocket" {

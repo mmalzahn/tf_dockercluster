@@ -59,18 +59,12 @@
                 "sudo yum update -y",
                 "sudo yum install -y amazon-efs-utils docker git",
                 "sudo systemctl enable docker",
-                "sudo service docker start",
                 "sudo curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose",
                 "sudo chmod +x /usr/local/bin/docker-compose",
                 "sudo usermod -a -G docker ec2-user",
                 "sudo mkdir /efs",
                 "sudo chmod 777 /efs"
             ]
-        },
-        {
-          "destination": "/home/ec2-user/daemon.json",
-          "source": "src/daemon.json",
-          "type": "file"
         },
         {
           "destination": "/home/ec2-user/override.conf",
@@ -80,20 +74,14 @@
         {
             "type": "shell",
             "inline": [
-                "sudo mv /home/ec2-user/daemon.json /etc/docker/daemon.json",
-                "sudo chown root.root /etc/docker/daemon.json",
-                "sudo chmod 600 /etc/docker/daemon.json"
-            ]
-        },
-        {
-            "type": "shell",
-            "inline": [
                 "sudo mkdir /etc/systemd/system/docker.service.d", 
                 "sudo chown root.root /etc/systemd/system/docker.service.d",
                 "sudo chmod 755 /etc/systemd/system/docker.service.d", 
                 "sudo mv /home/ec2-user/override.conf /etc/systemd/system/docker.service.d/override.conf",
                 "sudo chown root.root /etc/systemd/system/docker.service.d/override.conf",
-                "sudo chmod 644 /etc/systemd/system/docker.service.d/override.conf"
+                "sudo chmod 644 /etc/systemd/system/docker.service.d/override.conf",
+                "sudo systemctl daemon-reload",
+                "sudo systemctl start docker"
             ]
         }
     ]
