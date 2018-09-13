@@ -10,4 +10,8 @@
 
 *.tfplan
 
+*.ps1
+
 keys/
+
+debug/

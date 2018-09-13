@@ -5,6 +5,8 @@ data "template_file" "installscript_master_intern" {
     file_system_id = "${element(data.terraform_remote_state.baseInfra.efs_filesystem_id,0)}"
     efs_directory  = "/efs"
     project_id     = "${local.projectId}"
+    user_id        = "${lower(random_string.projectId.result)}"
+    public_key     = "${trimspace(tls_private_key.private_key_dockercluster.public_key_openssh)}"
   }
 }
 
@@ -25,7 +27,7 @@ resource "aws_instance" "internerDockerhostMaster" {
   ]
 
   associate_public_ip_address = "false"
-  key_name                    = "${data.template_file.awskeyname.rendered}"
+  key_name                    = "${local.resource_prefix}key"
   user_data                   = "${data.template_file.installscript_master_intern.rendered}"
 
   lifecycle {
@@ -80,7 +82,7 @@ resource "aws_instance" "internerDockerhostWorker" {
   ]
 
   associate_public_ip_address = "false"
-  key_name                    = "${data.template_file.awskeyname.rendered}"
+  key_name                    = "${local.resource_prefix}key"
   user_data                   = "${data.template_file.installscript_worker_intern.rendered}"
 
   lifecycle {
@@ -127,9 +129,4 @@ data "template_file" "startSshScript" {
     bastionhost_fqdn = "${element(data.terraform_remote_state.baseInfra.bastion_dns,0)}"
     workspace        = "${terraform.workspace}"
   }
-}
-
-resource "local_file" "connectSshScript" {
-  content  = "${data.template_file.startSshScript.rendered}"
-  filename = "${path.module}/start_ssh_connection.ps1"
 }

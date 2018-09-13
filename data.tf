@@ -2,7 +2,7 @@ locals {
   common_tags {
     responsible     = "${var.tag_responsibel}"
     tf_managed      = "1"
-    tf_project      = "dca:${terraform.workspace}:${random_id.randomPart.b64_url}:${replace(var.project_name," ","")}"
+    tf_project      = "dca:${terraform.workspace}:${replace(var.project_name," ","")}"
     tf_project_name = "DCA_${replace(var.project_name," ","_")}_${terraform.workspace}"
     tf_environment  = "${terraform.workspace}"
     tf_created      = "${timestamp()}"
@@ -57,4 +57,20 @@ resource "random_string" "projectId" {
 resource "random_integer" "randomScriptPort" {
   min   = 12000
   max   = 14000
+}
+resource "random_integer" "randomDockerPort" {
+  min   = 14001
+  max   = 16000
+}
+
+data "template_file" "connectDockerSocket" {
+  template = "${file("tpl/connectDocker.tpl")}"
+
+  vars {
+    random_port      = "${random_integer.randomDockerPort.result}"
+    userid           = "${lower(random_string.projectId.result)}"
+    host_fqdn        = "${aws_route53_record.dockerhost_masterintern.fqdn}"
+    bastionhost_fqdn = "${element(data.terraform_remote_state.baseInfra.bastion_dns,0)}"
+    workspace        = "${terraform.workspace}"
+  }
 }
