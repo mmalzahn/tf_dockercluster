@@ -24,3 +24,4 @@ debug_on = true
 dockercluster_deploy = false
 
 dockercluster_instance_type = "t2.micro"
+DmzDockerCluster_deploy = true
