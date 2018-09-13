@@ -4,12 +4,20 @@ resource "local_file" "dockerConfig" {
   filename = "${path.module}/keys/${terraform.workspace}/docker/key.pem"
 }
 
-resource "local_file" "connectSshScript" {
-  content  = "${data.template_file.startSshScript.rendered}"
-  filename = "${path.module}/start_ssh_connection.ps1"
+resource "local_file" "connectSshInternScript" {
+  content  = "${data.template_file.startSshDockerInternScript.rendered}"
+  filename = "${path.module}/StartInternSshConnection.ps1"
 }
 
-resource "local_file" "connectDockerSocket" {
-  content  = "${data.template_file.connectDockerSocket.rendered}"
-  filename = "${path.module}/SetDockerconnection.ps1"
+resource "local_file" "connectSshExternScript" {
+  content  = "${data.template_file.startSshDockerExternScript.rendered}"
+  filename = "${path.module}/StartDmzSshConnection.ps1"
+}
+resource "local_file" "connectDockerInternSocket" {
+  content  = "${data.template_file.connectDockerSocketIntern.rendered}"
+  filename = "${path.module}/SetInternDockerconnection.ps1"
+}
+resource "local_file" "connectDockerExternSocket" {
+  content  = "${data.template_file.connectDockerSocketExtern.rendered}"
+  filename = "${path.module}/SetDmzDockerconnection.ps1"
 }

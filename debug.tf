@@ -1,7 +1,13 @@
-resource "local_file" "dockerMasterInstallscript" {
+resource "local_file" "dockerMasterInstallscriptExtern" {
+  count      = "${var.debug_on ? 1 : 0 }"
+  content    = "${data.template_file.installscript_master_extern.rendered}"
+  filename   = "${path.module}/debug/${terraform.workspace}/dockerMasterInstallscriptExtern.txt"
+  depends_on = ["aws_instance.internerDockerhostMaster"]
+}
+resource "local_file" "dockerMasterInstallscriptIntern" {
   count      = "${var.debug_on ? 1 : 0 }"
   content    = "${data.template_file.installscript_master_intern.rendered}"
-  filename   = "${path.module}/debug/${terraform.workspace}/dockerMasterInstallscript.txt"
+  filename   = "${path.module}/debug/${terraform.workspace}/dockerMasterInstallscriptIntern.txt"
   depends_on = ["aws_instance.internerDockerhostMaster"]
 }
 resource "local_file" "dockerWorkerInstallscript" {
@@ -22,6 +28,6 @@ resource "local_file" "projectId" {
 }
 resource "local_file" "randomPorts" {
   count      = "${var.debug_on ? 1 : 0 }"
-  content    = "ssh-port: ${random_integer.randomScriptPort.result} --- docker: ${random_integer.randomDockerPort.result}"
+  content    = "ssh intern: ${random_integer.randomSshPortIntern.result} --- docker intern: ${random_integer.randomDockerPortIntern.result} \n\r ssh extern: ${random_integer.randomSshPortExtern.result} --- docker extern: ${random_integer.randomDockerPortExtern.result}"
   filename   = "${path.module}/debug/${terraform.workspace}/randomPorts.txt"
 }
