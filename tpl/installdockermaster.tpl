@@ -1,6 +1,5 @@
 #cloud-config
-repo_update: true
-repo_upgrade: all
+repo_update: false
 
 runcmd:
 - mkdir /tmpmount
@@ -13,7 +12,8 @@ runcmd:
 - mount -a -t efs defaults
 - docker swarm init
 - rm /efs/swarmtoken.txt
-- docker swarm join-token -q worker >>/efs/swarmtoken.txt
+- docker swarm join-token -q worker >>/efs/swarm_worker.token
+- docker swarm join-token -q manager >>/efs/swarm_manager.token
 - adduser ${user_id}
 - usermod -a -G docker ${user_id}
 - mkdir -m 700 /home/${user_id}/.ssh

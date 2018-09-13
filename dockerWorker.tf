@@ -7,10 +7,11 @@ data "template_file" "installscript_worker_intern" {
     project_id     = "${local.projectId}"
     master_ip      = "${aws_instance.internerDockerhostMaster.private_ip}"
   }
+  depends_on =["aws_instance.internerDockerhostMaster"]
 }
 
 resource "aws_instance" "internerDockerhostWorker" {
-  count         = "${var.dockercluster_deploy ? length(data.terraform_remote_state.baseInfra.subnet_ids_backend): 0}"
+  count         = "${var.dockercluster_deploy ? length(data.terraform_remote_state.baseInfra.subnet_ids_backend) : 0}"
   ami           = "${data.aws_ami.dockerhostPackerAmi.id}"
   instance_type = "${var.dockercluster_instance_type}"
   subnet_id     = "${element(data.terraform_remote_state.baseInfra.subnet_ids_backend,count.index)}"
