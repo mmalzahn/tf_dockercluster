@@ -18,12 +18,12 @@ resource "aws_instance" "internerDockerhostMaster" {
   vpc_security_group_ids = [
     "${lookup(data.terraform_remote_state.baseInfra.secgroups,"ssh_bastion_in")}",
     "${aws_security_group.SG_DockerSocket_IN_from_Bastionhost.id}",
-    "${aws_security_group.SG_DockerSwarmCom_from_tiersubnets.id}",
+    "${aws_security_group.SG_DockerSwarmCom_from_backendtiersubnets.id}",
   ]
 
   depends_on = [
     "aws_security_group.SG_DockerSocket_IN_from_Bastionhost",
-    "aws_security_group.SG_DockerSwarmCom_from_tiersubnets",
+    "aws_security_group.SG_DockerSwarmCom_from_backendtiersubnets",
   ]
 
   associate_public_ip_address = "false"
