@@ -38,3 +38,6 @@ variable "dockercluster_deploy" {
   default = false
 }
 
+variable "DmzDockerCluster_deploy" {
+  default = false
+}
